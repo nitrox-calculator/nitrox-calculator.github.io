@@ -182,7 +182,7 @@
             }
             const eanx = Math.round(((ppo2 / ((maxDepth / 10) + 1)) * 100) * 100) / 100;
             if (eanx >= 21 && eanx <= 100) {
-                document.getElementById('bestMixResult').innerText = `Best EANx Mix: ${eanx.toFixed(0)}%`;
+                document.getElementById('bestMixResult').innerText = `EANx ${eanx.toFixed(0)}`;
             } else {
                 document.getElementById('bestMixResult').innerText = 'Invalid EANx percentage (must be 21-100)';
             }
@@ -196,7 +196,7 @@
                 return;
             }
             const mod = ((ppo2 / (eanx / 100)) - 1) * 10;
-            document.getElementById('modResult').innerText = `MOD: ${mod.toFixed(0)} m`;
+            document.getElementById('modResult').innerText = `${mod.toFixed(0)}m`;
         }
 
         document.getElementById('maxDepth').addEventListener('input', calculateBestMix);
