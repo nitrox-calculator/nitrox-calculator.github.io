@@ -1,43 +1,3 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -46,11 +6,11 @@
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
+			text-align: center;
             background: linear-gradient(to bottom, #1e3a8a, #60a5fa);
             color: #ffffff;
             margin: 0;
             padding: 20px;
-            // min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -65,33 +25,65 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         h1 {
-            text-align: center;
             font-size: 2.5em;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: center;			
         }
-        .warning {
-            background: rgba(220, 38, 38, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            text-align: center;
-            font-weight: bold;
+		h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
         }
-        .section {
+		.section {
             margin: 30px 0;
             padding: 20px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
+			text-align: left;
+		}
+        .warning-button {
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+			border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+			text-align: center;
         }
-        h2 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
+        .warning-button:hover {
+            background-color: darkred;
         }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            font-size: 1.1em;
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background: linear-gradient(to bottom, #1e3a8a, #60a5fa);
+            margin: 15% auto;
+            padding: 20px;
+			border-radius: 15px;
+            border: 1px solid #888;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
         }
         input[type="number"] {
             padding: 10px;
@@ -106,25 +98,23 @@
         input[type="radio"] {
             margin: 0 5px 0 15px;
         }
-        .radio-group {
-            margin: 15px 0;
-        }
         .result {
-            margin-top: 20px;
-            font-size: 1.2em;
+            color: #003087;
             font-weight: bold;
-            color: #fef08a;
         }
-        footer {
-            margin-top: 30px;
-            font-size: 0.6em;
-            opacity: 0.8;
-	    text-align: right;
+        .footer {
+            font-size: 12px;
+            color: #005c99;
+            margin-top: 20px;
+			text-align: right;
         }
-        @media (max-width: 500px) {
+		@media (max-width: 500px) {
             .container {
                 padding: 15px;
             }
+			.modal-content {
+            max-width: 350px;
+            }			
             h1 {
                 font-size: 2em;
             }
@@ -136,76 +126,91 @@
 </head>
 <body>
     <div class="container">
-        <h1>Nitrox Calculator</h1>
+		<h1>Nitrox Calculator</h1>
+		<button class="warning-button" onclick="openModal()">Safety and Disclaimer</button>
 
-<!--        <div class="warning">
-            ☠️☠️ ⚠️⚠️ ONLY USE NITROX IF YOU'RE NITROX CERTIFIED ⚠️⚠️ ☠️☠️
-            <p>DISCLAIMER: THE AUTHOR IS NOT RESPONSIBLE FOR ANY ACCIDENTS.</p>
-            <p>MAKE SURE TO DOUBLE CHECK YOUR RESULTS AND DO YOUR OWN CALCULATIONS.</p>
-        </div> -->
-        
-	<div class="section">
-            <h2>Best EANx Mix</h2>
-            <label>MOD: <input type="number" id="maxDepth" min="0" step="1"> m</label>
-            <div class="radio-group">
-                ppO²:
-                <input type="radio" name="ppo2BestMix" value="1.2"> 1.2
-                <input type="radio" name="ppo2BestMix" value="1.4" checked> 1.4
-                <input type="radio" name="ppo2BestMix" value="1.6"> 1.6
-            </div>
-            <div id="bestMixResult" class="result"></div>
-        </div>
-
-        <div class="section">
-            <h2>MOD</h2>
-            <label>EANx (21-100): <input type="number" id="eanxPercentage" min="21" max="100" step="1"> %</label>
-            <div class="radio-group">
-                ppO²:
-                <input type="radio" name="ppo2Mod" value="1.2"> 1.2
-                <input type="radio" name="ppo2Mod" value="1.4" checked> 1.4
-                <input type="radio" name="ppo2Mod" value="1.6"> 1.6
-            </div>
-            <div id="modResult" class="result"></div>
-        </div>
-
-        <footer text-align: right;>by JGR from L'Escala town - 2022-2025</footer>
-    </div>
+		<div id="warningModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeModal()">&times;</span>
+				<p style="color: red; font-weight: bold;">
+					☠️☠️⚠️⚠️ONLY USE NITROX IF YOU'RE NITROX CERTIFIED⚠️⚠️☠️☠️
+				</p>
+				<p>
+					DISCLAIMER: THE AUTHOR IS NOT RESPONSIBLE FOR ANY ACCIDENTS.
+				</p>
+			</div>
+		</div>
+		<div class="section">
+			<h2>EANx Mix</h2>
+			<p>
+				MOD: <input type="number" id="modInput" placeholder="m" min="0" oninput="calculateBestEANx()"> m
+			</p>
+			<p>
+				ppO²:
+				<input type="radio" name="ppo2_best" value="1.2" onchange="calculateBestEANx()"> 1.2
+				<input type="radio" name="ppo2_best" value="1.4" checked onchange="calculateBestEANx()"> 1.4
+				<input type="radio" name="ppo2_best" value="1.6" onchange="calculateBestEANx()"> 1.6
+			</p>
+		<p class="result" id="bestEANxResult">EANx: -- %</p>
+		</div>
+		<div class="section">
+			<h2>MOD</h2>
+			<p>
+				EANx (21-100): <input type="number" id="eanxInput" min="21" max="100" placeholder="%" oninput="calculateMOD()"> %
+			</p>
+			<p>
+				ppO²:
+				<input type="radio" name="ppo2_mod" value="1.2" onchange="calculateMOD()"> 1.2
+				<input type="radio" name="ppo2_mod" value="1.4" checked onchange="calculateMOD()"> 1.4
+				<input type="radio" name="ppo2_mod" value="1.6" onchange="calculateMOD()"> 1.6
+			</p>
+			<p class="result" id="modResult">MOD: -- m</p>
+		</div>
+			<p class="footer">by JGR from L'Escala town - 2022-2025</p>
+		
+	</div>
 
     <script>
-        function calculateBestMix() {
-            const maxDepth = parseFloat(document.getElementById('maxDepth').value);
-            const ppo2 = parseFloat(document.querySelector('input[name="ppo2BestMix"]:checked').value);
-            if (isNaN(maxDepth) || maxDepth < 0) {
-                document.getElementById('bestMixResult').innerText = '';
-                return;
+        function openModal() {
+            document.getElementById("warningModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("warningModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("warningModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
             }
-            const eanx = Math.round(((ppo2 / ((maxDepth / 10) + 1)) * 100) * 100) / 100;
-            if (eanx >= 21 && eanx <= 100) {
-                document.getElementById('bestMixResult').innerText = `EANx ${eanx.toFixed(0)}`;
+        }
+
+        function calculateBestEANx() {
+            const mod = parseFloat(document.getElementById("modInput").value);
+            const ppo2 = parseFloat(document.querySelector('input[name="ppo2_best"]:checked').value);
+            const resultElement = document.getElementById("bestEANxResult");
+
+            if (!isNaN(mod) && mod >= 0) {
+                const eanx = (ppo2 / ((mod / 10) + 1)) * 100;
+                resultElement.textContent = `Best EANx: ${Math.round(eanx)} %`;
             } else {
-                document.getElementById('bestMixResult').innerText = 'Invalid EANx percentage (must be 21-100)';
+                resultElement.textContent = "Best EANx: -- %";
             }
         }
 
         function calculateMOD() {
-            const eanx = parseFloat(document.getElementById('eanxPercentage').value);
-            const ppo2 = parseFloat(document.querySelector('input[name="ppo2Mod"]:checked').value);
-            if (isNaN(eanx) || eanx < 21 || eanx > 100) {
-                document.getElementById('modResult').innerText = '';
-                return;
-            }
-            const mod = ((ppo2 / (eanx / 100)) - 1) * 10;
-            document.getElementById('modResult').innerText = `${mod.toFixed(0)}m`;
-        }
+            const eanx = parseFloat(document.getElementById("eanxInput").value);
+            const ppo2 = parseFloat(document.querySelector('input[name="ppo2_mod"]:checked').value);
+            const resultElement = document.getElementById("modResult");
 
-        document.getElementById('maxDepth').addEventListener('input', calculateBestMix);
-        document.querySelectorAll('input[name="ppo2BestMix"]').forEach(radio => {
-            radio.addEventListener('change', calculateBestMix);
-        });
-        document.getElementById('eanxPercentage').addEventListener('input', calculateMOD);
-        document.querySelectorAll('input[name="ppo2Mod"]').forEach(radio => {
-            radio.addEventListener('change', calculateMOD);
-        });
+            if (!isNaN(eanx) && eanx >= 21 && eanx <= 100) {
+                const mod = ((ppo2 / (eanx / 100)) - 1) * 10;
+                resultElement.textContent = `MOD: ${Math.round(mod)} m`;
+            } else {
+                resultElement.textContent = "MOD: -- m";
+            }
+        }
     </script>
 </body>
 </html>
