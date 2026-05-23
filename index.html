@@ -1,216 +1,302 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nitrox Calculator</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-			text-align: center;
-            background: linear-gradient(to bottom, #1e3a8a, #60a5fa);
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            max-width: 600px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            text-align: center;			
-        }
-	    h2 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-        }
-    	.section {
-            margin: 30px 0;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-	        text-align: left;
-        }
-        .warning-button {
-            background-color: red;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-	        border-radius: 15px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 0;
-	        text-align: center;
-        }
-        .warning-button:hover {
-            background-color: darkred;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal-content {
-            background: linear-gradient(to bottom, #1e3a8a, #60a5fa);
-            margin: 15% auto;
-            padding: 20px;
-	        border-radius: 15px;
-            border: 1px solid #888;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: black;
-        }
-        input[type="number"] {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 65px;
-            font-size: 1em;
-            background: rgba(255, 255, 255, 0.9);
-            color: #1e3a8a;
-        }
-        input[type="radio"] {
-            margin: 0 5px 0 15px;
-        }
-        .result {
-	        font-size: 1.8em;
-            color: #003087;
-            font-weight: bold;
-        }
-        .footer {
-            font-size: 8px;
-            color: #ffffff;
-            margin-top: 20px;
-	        text-align: right;
-        }
-	@media (max-width: 500px) {
-            .container {
-                padding: 15px;
-            }
-	        .modal-content {
-                max-width: 350px;
-            }			
-            h1 {
-                font-size: 2em;
-            }
-            h2 {
-                font-size: 1.5em;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nitrox • Planificador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg, #0a1625, #1e3a5f); font-family: 'Inter', system-ui, sans-serif; }
+    .ocean-bg {
+      background: url('background.jpg') center/cover no-repeat;
+      opacity: 0.22;
+      filter: brightness(0.85) contrast(1.1);
+    }
+    .glass {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .option-btn { transition: all 0.2s ease; }
+    .option-btn.active {
+      background-color: #22d3ee;
+      color: #0f172a;
+      transform: scale(1.05);
+    }
+    .flag {
+      width: 28px;
+      height: 19px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.25);
+      transition: transform 0.2s;
+    }
+    .flag:hover { transform: scale(1.2); }
+    .unit-btn {
+      transition: all 0.2s ease;
+    }
+    .unit-btn.active {
+      background-color: #22d3ee;
+      color: #0f172a;
+      transform: scale(1.05);
+    }
+    .tooltip {
+      position: fixed; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%);
+      background: rgba(15, 23, 42, 0.98); 
+      border: 2px solid #ef4444;
+      padding: 2.5rem; 
+      border-radius: 20px; 
+      max-width: 920px;
+      width: 95%;
+      text-align: center; 
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
+      z-index: 1000; 
+      display: none; 
+      font-size: 1.2rem; 
+      line-height: 1.6;
+    }
+    .signature {
+      position: fixed; bottom: 20px; right: 30px;
+      color: rgba(255, 255, 255, 0.4); font-size: 0.8rem; z-index: 10;
+    }
+
+    @media (max-width: 640px) {
+      .top-bar { flex-direction: column; gap: 12px; align-items: center; }
+      .flag { width: 32px; height: 22px; }
+    }
+  </style>
 </head>
-<body>
-    <div class="container">
-		<h1>Nitrox Calculator</h1>
-		<button class="warning-button" onclick="openModal()">Safety and Disclaimer</button>
+<body class="min-h-screen text-white">
+  <div class="ocean-bg fixed inset-0 z-0"></div>
+  
+  <div class="relative z-10 max-w-4xl mx-auto p-6">
+    <!-- Top Bar -->
+    <div class="top-bar flex items-center justify-between mb-8 pt-4">
+      <!-- Left spacer -->
+      <div class="w-20"></div>
 
-		<div id="warningModal" class="modal">
-			<div class="modal-content">
-				<span class="close" onclick="closeModal()">&times;</span>
-				<p style="color: red; font-weight: bold;">
-					☠️☠️⚠️⚠️ONLY USE NITROX IF YOU'RE NITROX CERTIFIED⚠️⚠️☠️☠️
-				</p>
-				<p>
-					DISCLAIMER: THE AUTHOR IS NOT RESPONSIBLE FOR ANY ACCIDENTS.
-				</p>
-			</div>
-		</div>
-		<div class="section">
-			<h2>EANx Mix</h2>
-			<p>
-				MOD: <input type="number" id="modInput" placeholder="m" min="0" oninput="calculateBestEANx()"> m
-			</p>
-			<p>
-				ppO²:
-				<input type="radio" name="ppo2_best" value="1.2" onchange="calculateBestEANx()"> 1.2
-				<input type="radio" name="ppo2_best" value="1.4" checked onchange="calculateBestEANx()"> 1.4
-				<input type="radio" name="ppo2_best" value="1.6" onchange="calculateBestEANx()"> 1.6
-			</p>
-		<p class="result" id="bestEANxResult">EANx: -- %</p>
-		</div>
-		<div class="section">
-			<h2>MOD</h2>
-			<p>
-				EANx (21-100): <input type="number" id="eanxInput" min="21" max="100" placeholder="%" oninput="calculateMOD()"> %
-			</p>
-			<p>
-				ppO²:
-				<input type="radio" name="ppo2_mod" value="1.2" onchange="calculateMOD()"> 1.2
-				<input type="radio" name="ppo2_mod" value="1.4" checked onchange="calculateMOD()"> 1.4
-				<input type="radio" name="ppo2_mod" value="1.6" onchange="calculateMOD()"> 1.6
-			</p>
-			<p class="result" id="modResult">MOD: -- m</p>
-		</div>
-			<p class="footer">by JGR - 2022-2025</p>
-		
-	</div>
+      <!-- Centered Title -->
+      <div class="text-center flex-1">
+        <h1 class="text-4xl md:text-5xl font-bold flex items-center justify-center gap-3">
+          <i class="fas fa-water text-cyan-400"></i>
+          Nitrox
+        </h1>
+        <p id="subtitle" class="text-cyan-300 text-lg md:text-xl mt-1">Planificador de Busseig amb Nitrox</p>
+      </div>
 
-    <script>
-        function openModal() {
-            document.getElementById("warningModal").style.display = "block";
-        }
+      <!-- Right side: Flags + Units -->
+      <div class="flex gap-3 items-center flex-shrink-0">
+        <button onclick="setLanguage('ca')" class="hover:scale-110 transition" title="Català">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Flag_of_Catalonia_in_PNG.png" class="flag" alt="Bandera Catalana">
+        </button>
+        <button onclick="setLanguage('en')" class="hover:scale-110 transition" title="English">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/Flag_of_the_United_States.png" class="flag" alt="USA Flag">
+        </button>
+        
+        <div class="flex border border-white/30 rounded-xl overflow-hidden ml-2">
+          <button onclick="setUnit(true)" id="metric-btn" class="unit-btn active px-4 py-2 text-sm font-medium">m</button>
+          <button onclick="setUnit(false)" id="imperial-btn" class="unit-btn px-4 py-2 text-sm font-medium">ft</button>
+        </div>
+      </div>
+    </div>
 
-        function closeModal() {
-            document.getElementById("warningModal").style.display = "none";
-        }
+    <button id="disclaimer-btn" class="mx-auto block bg-red-600 hover:bg-red-700 transition-all px-6 py-2 rounded-2xl text-sm font-semibold flex items-center gap-2">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span id="disclaimer-text">Avís de Seguretat</span>
+    </button>
 
-        window.onclick = function(event) {
-            const modal = document.getElementById("warningModal");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
+    <div class="grid md:grid-cols-2 gap-8 mt-10">
+      <div class="glass rounded-3xl p-8">
+        <h2 id="input-title" class="text-2xl font-semibold mb-6">Entrada de paràmetres</h2>
+        
+        <div class="space-y-8">
+          <div>
+            <label id="mode-label" class="block text-sm text-cyan-300 mb-3">Mode de Càlcul</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="setMode(1)" id="mode1" class="option-btn active w-full py-4 rounded-2xl text-lg font-medium border border-white/20">Profunditat Màxima</button>
+              <button onclick="setMode(2)" id="mode2" class="option-btn w-full py-4 rounded-2xl text-lg font-medium border border-white/20">Millor %O₂</button>
+            </div>
+          </div>
 
-        function calculateBestEANx() {
-            const mod = parseFloat(document.getElementById("modInput").value);
-            const ppo2 = parseFloat(document.querySelector('input[name="ppo2_best"]:checked').value);
-            const resultElement = document.getElementById("bestEANxResult");
+          <div id="input1">
+            <label id="o2-label" class="block text-sm text-cyan-300 mb-2">% Oxigen (FO₂)</label>
+            <input type="number" id="o2" value="32" step="0.1" class="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-2xl">
+          </div>
 
-            if (!isNaN(mod) && mod >= 0) {
-                const eanx = (ppo2 / ((mod / 10) + 1)) * 100;
-                resultElement.textContent = `EANx: ${Math.round(eanx)} %`;
-            } else {
-                resultElement.textContent = "EANx: -- %";
-            }
-        }
+          <div id="input2">
+            <label id="depth-label" class="block text-sm text-cyan-300 mb-2">Profunditat Màxima</label>
+            <input type="number" id="depth" value="30" step="1" class="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-2xl">
+            <span id="depth-unit" class="text-xs text-cyan-300">metres</span>
+          </div>
 
-        function calculateMOD() {
-            const eanx = parseFloat(document.getElementById("eanxInput").value);
-            const ppo2 = parseFloat(document.querySelector('input[name="ppo2_mod"]:checked').value);
-            const resultElement = document.getElementById("modResult");
+          <div>
+            <label id="ppo2-label" class="block text-sm text-cyan-300 mb-3">PPO₂ Màxim</label>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="setPPO2(1.2)" id="ppo2_1.2" class="option-btn w-full py-4 rounded-2xl text-lg font-medium border border-white/20">1.2</button>
+              <button onclick="setPPO2(1.4)" id="ppo2_1.4" class="option-btn active w-full py-4 rounded-2xl text-lg font-medium border border-white/20">1.4</button>
+              <button onclick="setPPO2(1.6)" id="ppo2_1.6" class="option-btn w-full py-4 rounded-2xl text-lg font-medium border border-white/20">1.6</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            if (!isNaN(eanx) && eanx >= 21 && eanx <= 100) {
-                const mod = ((ppo2 / (eanx / 100)) - 1) * 10;
-                resultElement.textContent = `MOD: ${Math.round(mod)} m`;
-            } else {
-                resultElement.textContent = "MOD: -- m";
-            }
-        }
-    </script>
+      <div class="glass rounded-3xl p-8">
+        <h2 id="results-title" class="text-2xl font-semibold mb-6">Resultats</h2>
+        <div id="results" class="space-y-6 text-lg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="signature">by JGR - 2022-2026</div>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <script>
+    let currentMode = 1;
+    let currentPPO2 = 1.4;
+    let currentLang = 'ca';
+    let isMetric = true;
+
+    const translations = {
+      ca: {
+        subtitle: "Planificador de Busseig amb Nitrox",
+        disclaimer: "Avís de Seguretat",
+        inputTitle: "Entrada de paràmetres",
+        modeLabel: "Mode de Càlcul",
+        maxDepthBtn: "Profunditat Màxima",
+        bestO2Btn: "Millor %O₂",
+        o2Label: "% Oxigen (FO₂)",
+        depthLabel: "Profunditat Màxima",
+        depthUnit: "metres",
+        ppo2Label: "PPO₂ Màxim",
+        resultsTitle: "Resultats",
+        modTitle: "Profunditat Operativa Màxima",
+        bestMixTitle: "Mescla de Nitrox Recomanada",
+        tooltip: "☠️☠️⚠️⚠️ <strong>UTILITZA NITROX NOMÉS SI ESTÀS CERTIFICAT EN NITROX</strong> ⚠️⚠️☠️☠️<br><br>AVÍS: L'AUTOR NO ÉS RESPONSABLE DE CAP ACCIDENT."
+      },
+      en: {
+        subtitle: "Nitrox Dive Planner",
+        disclaimer: "Safety Disclaimer",
+        inputTitle: "Input Parameters",
+        modeLabel: "Calculation Mode",
+        maxDepthBtn: "Max Depth",
+        bestO2Btn: "Best %O₂",
+        o2Label: "% Oxygen (FO₂)",
+        depthLabel: "Maximum Depth",
+        depthUnit: "feet",
+        ppo2Label: "Max PPO₂",
+        resultsTitle: "Results",
+        modTitle: "Maximum Operating Depth",
+        bestMixTitle: "Recommended Nitrox Mix",
+        tooltip: "☠️☠️⚠️⚠️ <strong>ONLY USE NITROX IF YOU'RE NITROX CERTIFIED</strong> ⚠️⚠️☠️☠️<br><br>DISCLAIMER: THE AUTHOR IS NOT RESPONSIBLE FOR ANY ACCIDENTS."
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      
+      document.getElementById('subtitle').textContent = t.subtitle;
+      document.getElementById('disclaimer-text').textContent = t.disclaimer;
+      document.getElementById('input-title').textContent = t.inputTitle;
+      document.getElementById('mode-label').textContent = t.modeLabel;
+      document.getElementById('mode1').textContent = t.maxDepthBtn;
+      document.getElementById('mode2').textContent = t.bestO2Btn;
+      document.getElementById('o2-label').textContent = t.o2Label;
+      document.getElementById('depth-label').textContent = t.depthLabel;
+      document.getElementById('depth-unit').textContent = t.depthUnit;
+      document.getElementById('ppo2-label').textContent = t.ppo2Label;
+      document.getElementById('results-title').textContent = t.resultsTitle;
+      document.getElementById('tooltip').innerHTML = t.tooltip;
+
+      calculate();
+    }
+
+    function setUnit(metric) {
+      isMetric = metric;
+      document.getElementById('metric-btn').classList.toggle('active', metric);
+      document.getElementById('imperial-btn').classList.toggle('active', !metric);
+      document.getElementById('depth-unit').textContent = isMetric ? "metres" : "feet";
+      calculate();
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('mode1').classList.toggle('active', mode === 1);
+      document.getElementById('mode2').classList.toggle('active', mode === 2);
+      document.getElementById('input1').style.display = mode === 1 ? "block" : "none";
+      document.getElementById('input2').style.display = mode === 2 ? "block" : "none";
+      calculate();
+    }
+
+    function setPPO2(ppo2) {
+      currentPPO2 = ppo2;
+      document.getElementById('ppo2_1.2').classList.toggle('active', ppo2 === 1.2);
+      document.getElementById('ppo2_1.4').classList.toggle('active', ppo2 === 1.4);
+      document.getElementById('ppo2_1.6').classList.toggle('active', ppo2 === 1.6);
+      calculate();
+    }
+
+    function calculate() {
+      let o2 = parseFloat(document.getElementById('o2').value) || 32;
+      let depth = parseFloat(document.getElementById('depth').value) || 30;
+      const ppo2 = currentPPO2;
+      const t = translations[currentLang];
+
+      let resultHTML = '';
+
+      if (currentMode === 1) {
+        const fo2 = o2 / 100;
+        let ata = ppo2 / fo2;
+        let finalDepth = (ata - 1) * 10;
+        if (!isMetric) finalDepth = finalDepth * 3.28084;
+        finalDepth = Math.floor(finalDepth);
+
+        resultHTML = `
+          <div class="bg-emerald-900/60 rounded-2xl p-6">
+            <p class="text-emerald-300 text-sm">${t.modTitle}</p>
+            <p class="text-6xl font-bold text-white">${finalDepth}<span class="text-3xl">${isMetric ? 'm' : 'ft'}</span></p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="bg-white/5 rounded-2xl p-4"><p class="text-cyan-300">PPO₂</p><p class="text-xl">${ppo2} bar</p></div>
+            <div class="bg-white/5 rounded-2xl p-4"><p class="text-cyan-300">FO₂</p><p class="text-xl">${o2}%</p></div>
+          </div>`;
+      } else {
+        let ata = 1 + (depth / (isMetric ? 10 : 3.28084));
+        const fo2 = ppo2 / ata;
+        o2 = Math.floor(fo2 * 100);
+
+        resultHTML = `
+          <div class="bg-emerald-900/60 rounded-2xl p-6">
+            <p class="text-emerald-300 text-sm">${t.bestMixTitle}</p>
+            <p class="text-6xl font-bold text-white">${o2}<span class="text-3xl">%</span></p>
+          </div>
+          <div class="bg-white/5 rounded-2xl p-6">
+            <p class="text-cyan-300">Max Depth</p>
+            <p class="text-4xl">${depth} ${isMetric ? 'm' : 'ft'}</p>
+          </div>`;
+      }
+
+      document.getElementById('results').innerHTML = resultHTML;
+    }
+
+    const tooltip = document.getElementById('tooltip');
+    const disclaimerBtn = document.getElementById('disclaimer-btn');
+    disclaimerBtn.addEventListener('mouseenter', () => tooltip.style.display = 'block');
+    disclaimerBtn.addEventListener('mouseleave', () => tooltip.style.display = 'none');
+
+    document.querySelectorAll('input').forEach(el => el.addEventListener('input', calculate));
+
+    window.onload = () => {
+      setMode(1);
+      setPPO2(1.4);
+      setLanguage('ca');
+      setUnit(true);
+    };
+  </script>
 </body>
 </html>
