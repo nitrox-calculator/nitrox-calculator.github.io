@@ -12,6 +12,8 @@
       background: url('background.jpg') center/cover no-repeat;
       opacity: 0.22;
       filter: brightness(0.85) contrast(1.1);
+      user-select: none;
+      -webkit-user-drag: none;
     }
     .glass {
       background: rgba(15, 23, 42, 0.75);
@@ -71,15 +73,12 @@
   </style>
 </head>
 <body class="min-h-screen text-white">
-  <div class="ocean-bg fixed inset-0 z-0"></div>
+  <div class="ocean-bg fixed inset-0 z-0" id="background"></div>
   
   <div class="relative z-10 max-w-4xl mx-auto p-6">
-    <!-- Top Bar -->
     <div class="top-bar flex items-center justify-between mb-8 pt-4">
-      <!-- Left spacer -->
       <div class="w-20"></div>
 
-      <!-- Centered Title -->
       <div class="text-center flex-1">
         <h1 class="text-4xl md:text-5xl font-bold flex items-center justify-center gap-3">
           <i class="fas fa-water text-cyan-400"></i>
@@ -88,7 +87,6 @@
         <p id="subtitle" class="text-cyan-300 text-lg md:text-xl mt-1">Planificador de Busseig amb Nitrox</p>
       </div>
 
-      <!-- Right side: Flags + Units -->
       <div class="flex gap-3 items-center flex-shrink-0">
         <button onclick="setLanguage('ca')" class="hover:scale-110 transition" title="Català">
           <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Flag_of_Catalonia_in_PNG.png" class="flag" alt="Bandera Catalana">
@@ -283,6 +281,12 @@
 
       document.getElementById('results').innerHTML = resultHTML;
     }
+
+    // Disable right-click on background
+    document.getElementById('background').addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
 
     const tooltip = document.getElementById('tooltip');
     const disclaimerBtn = document.getElementById('disclaimer-btn');
